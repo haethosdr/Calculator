@@ -12,13 +12,14 @@
     align-items: center;
 }
 
-#input {
+#displayField {
     margin: 5px;
     padding: 10px;
     min-width: 272px;
 }
 
-.button {
+.button,
+.number-button {
     padding: 5px 15px;
     font-size: 20px;
     min-width: 70px;
@@ -28,7 +29,8 @@
     border: 1px solid black;
 }
 
-.button:active {
+.button:active,
+.number-button:active {
     background-color: burlywood;
 }
 
