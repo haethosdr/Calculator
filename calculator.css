@@ -1,30 +1,40 @@
 /* CSS STYLESHEET: CALCULATOR */
 
-/* body {
-
-} */
+body {
+    background-color: antiquewhite;
+}
 
 .mainContainer {
     display: flex;
     flex-direction: column;
-    border: 3px solid Black;
+    border: 5px solid Black;
     width: 300px;
     align-items: center;
+    border-radius: 5px;
+}
+
+#displayContainer {
+    display: flex;
+    align-items: end;
+    height: 55px;
 }
 
 #displayField {
-    margin: 5px;
-    padding: 10px;
-    min-width: 272px;
+    margin: 0;
+    width: 295px;
+    /* max-height: 37px; */
+    text-align: right;
+    font-size: 47px;
+    font-family: Arial;
 }
 
 .button,
 .number-button {
-    padding: 5px 15px;
+    padding: 12px 12px;
     font-size: 20px;
     min-width: 70px;
     margin: 1px;
-    background-color: cadetblue;
+    background-color: steelblue;
     border-radius: 3px;
     border: 1px solid black;
 }
@@ -34,8 +44,8 @@
     background-color: burlywood;
 }
 
-#equal {
-    padding: 5px 66px;
+.operator {
+   color: darkred; 
 }
 
 
