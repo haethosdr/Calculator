@@ -1,14 +1,5 @@
 ////  Javascript for Calculator Project 3/29  ////
 
-//methods, arrays, objects, DOM manipulation
-
-//notes: 3/31 1:03pm: could rename accumulator and number. Can also possible create inside function with 
-// methods and then do symbol lookup to return logic. Accumulator will be global variable though.
-// notes for 4/1: decimalNumber / 1.0 isnt yeildig a decimal, start there tomorrow to first find a decimal conversion method //
-// issues as of 5pm 4/1: if you hit '=' button multiple times in a row, it glitches and stops working.
-// what can i use arguements parameter object for?
-
-// and refactoring and CSS, need only 1 decimal per operation and limitng digits
 //can convert number to string and slice if over length of 10 and convert back (or array.from --> slice..---> join)
 //to 14. also need to set text on the other side.
 
@@ -18,6 +9,8 @@ const calculatorButtons = document.querySelectorAll('.button');
 const clearButton = document.querySelector('#clear');
 const opColorButtons = document.querySelectorAll('.operate');
 
+// css: dots as  border around button container?
+
 let numberInput;
 let operatorInput;
 let accumulatorNumber;
@@ -25,29 +18,11 @@ let secondNumber;
 let activeOperator;
 let decimalButtonState = false;
 
-// need to limit numberfield length to 14 until shrinks //
-//then git add / commit. then, refactor //
-// add backspace functionality, so the user can undo if they click the wrong button
-
 function updateNumberField(calculatorField = 0, fontSize) {
     inputField.textContent = calculatorField;
-    inputField.style.fontSize = fontSize;
+    inputField.style.fontSize = fontSize; // do i need this?
 };
 updateNumberField();
-
-// function updateButtonColor(buttonValue) {
-//     opColorButtons.forEach(button => {
-//         if (button.dataset.colored) {
-//             button.dataset.colored = false;
-//             button.style.color = 'black';
-//         }
-//         if (buttonValue === button.textContent) {
-//             button.style.color = 'darkred';
-//             button.dataset.colored = true;
-//         }
-//     })
-// };
-
 
 function updateButtonColor(buttonValue) {
     opColorButtons.forEach(button => {
@@ -59,6 +34,8 @@ function updateButtonColor(buttonValue) {
         }
     })
 };
+
+// C is getting rid of the red operator color when it shouldent 365 x 265. clear 265. it should leave red as operator still active //
 
 function resizeText() {
     const inputField = document.querySelector('#displayField');
@@ -81,16 +58,17 @@ numberButtons.forEach(button => {
 });
 
 calculatorButtons.forEach(button => {
-    button.addEventListener('click', (event) => {
-    let numAffector = event.target.textContent;         
-    calculatorAffectors(numAffector);
-    resizeText(); // still finding best place for this. here? //
+    button.addEventListener('click', (event) => {       
+        calculatorAffectors(event.target.textContent);
     })
+    button.addEventListener('keydown', (event) => {
+        calculatorAffectors(event.target.textContent);   
+    }) //event.key // ?
 });
 
 function calculatorAffectors(numAffector) {
     switch (numAffector) {
-        case "del" :
+        case "delete" :
         case "." :
         case "AC" :
         case "C" :
@@ -104,6 +82,7 @@ function calculatorAffectors(numAffector) {
             operateLogic(operatorInput);
         if ((operatorInput || activeOperator) && numAffector !=="=") {updateButtonColor(numAffector)};
     };
+    resizeText();
 };
 
 function operateLogic(operatorInput) {
@@ -157,7 +136,7 @@ let operatorLookup = {
             updateNumberField(0, '47px');
         } else if (accumulatorNumber && activeOperator) { operatorInput = null; activeOperator = null; }
             clearButton.textContent = 'AC';
-            updateButtonColor();
+            updateButtonColor(); // needs to be moved
             decimalButtonState = false;
     },
     '+/-': () => { 
@@ -169,7 +148,7 @@ let operatorLookup = {
         numberInput = (parseFloat(numberInput) * -1).toString() };
         updateNumberField(numberInput);
     },
-    'del': () => {
+    'delete': () => {
         if (numberInput) {
             console.log("del");
             numberInput = numberInput.slice(0, -1);
