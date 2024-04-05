@@ -1,15 +1,16 @@
-////  Javascript for Calculator Project 3/29  ////
+////  Javascript for Calculator Project 3/29-4/4  ////
 
+// update: deleted secondNumber variable in operateLogic, and inserted numberInput into operatorLookup object function
 //can convert number to string and slice if over length of 10 and convert back (or array.from --> slice..---> join)
 //to 14. also need to set text on the other side.
+// still need keyboard support. can come back to it //
+// approx 165  lines // last 2 days have been nit picky stuff! //
 
 const inputField = document.querySelector('#displayField');
 const numberButtons = document.querySelectorAll('.number-button');
 const calculatorButtons = document.querySelectorAll('.button');
 const clearButton = document.querySelector('#clear');
 const opColorButtons = document.querySelectorAll('.operate');
-
-// css: dots as  border around button container?
 
 let numberInput;
 let operatorInput;
@@ -20,7 +21,7 @@ let decimalButtonState = false;
 
 function updateNumberField(calculatorField = 0, fontSize) {
     inputField.textContent = calculatorField;
-    inputField.style.fontSize = fontSize; // do i need this?
+    inputField.style.fontSize = fontSize;
 };
 updateNumberField();
 
@@ -34,8 +35,6 @@ function updateButtonColor(buttonValue) {
         }
     })
 };
-
-// C is getting rid of the red operator color when it shouldent 365 x 265. clear 265. it should leave red as operator still active //
 
 function resizeText() {
     const inputField = document.querySelector('#displayField');
@@ -62,45 +61,69 @@ calculatorButtons.forEach(button => {
         calculatorAffectors(event.target.textContent);
     })
     button.addEventListener('keydown', (event) => {
-        calculatorAffectors(event.target.textContent);   
-    }) //event.key // ?
+        console.log(event.key);
+        // calculatorEffectors(event.target.textContent);   
+    })
 });
-
-function calculatorAffectors(numAffector) {
-    switch (numAffector) {
+// should be numEffectors //
+function calculatorAffectors(numEffector) {
+    switch (numEffector) {
         case "delete" :
         case "." :
         case "AC" :
         case "C" :
         case "%" :
         case "+/-" : 
-            operatorLookup[numAffector]();
+            operatorLookup[numEffector]();
         break;
         default:
             numberInput = parseFloat(numberInput);
-            operatorInput = numAffector;
-            operateLogic(operatorInput);
-        if ((operatorInput || activeOperator) && numAffector !=="=") {updateButtonColor(numAffector)};
+            operateLogic(numEffector);
+        if (numEffector || activeOperator && numEffector !=="=") {updateButtonColor(numEffector)};
     };
     resizeText();
 };
 
+//10 x 10 = 100 
+// accumulator ('=') (fixed@ #6), accumulator '+' '=' (fixed@ #5), accumlator '+' (fixed@ #7);
+// numberInput '=' (fixed@ #6 || #4), numberInput '+' '=' (not necessary) //
 function operateLogic(operatorInput) {
-    if (accumulatorNumber && activeOperator) {
-        secondNumber = numberInput; // do i need this? or insert numberInput where second num is? //
-        accumulatorNumber = operatorLookup[activeOperator](accumulatorNumber, secondNumber);
-        updateNumberField(accumulatorNumber);
+    console.log(`operateLogic:: accumulatorNumber: ${accumulatorNumber}`, `numberInput: ${numberInput}`, `activeOperator: ${activeOperator}`);
+    if (accumulatorNumber && numberInput && activeOperator) { //#1
+        accumulatorNumber = operatorLookup[activeOperator](accumulatorNumber, numberInput);
+        inputField.style.borderBottomColor = 'red';
+        updateNumberField(accumulatorNumber); //can i just have one input as array and choose index in function for which prt of function to perform?
         activeOperator = operatorInput;
-        if (operatorInput === '=') {[activeOperator, secondNumber] = [null, null]};
+        if (operatorInput === '=') { activeOperator = null };
         updateButtonColor(operatorInput);
-    } else if (accumulatorNumber && activeOperator === null) {
-        activeOperator = operatorInput;
-    } else {
+        decimalButtonState = false;
+        console.log("Channel 1");
+    } else if (accumulatorNumber && activeOperator && operatorInput === '=') {
+        accumulatorNumber = operatorLookup[activeOperator](accumulatorNumber, accumulatorNumber);
+        updateNumberField(accumulatorNumber);
+        updateButtonColor(operatorInput);
+        inputField.style.borderBottomColor = 'red';
+        activeOperator = null; // #5 //
+        console.log("Channel 2");
+    } else if (accumulatorNumber && activeOperator && !numberInput) { 
+        console.log("Channel 3");
+        return;   // #7
+    } else if (accumulatorNumber && activeOperator === null && operatorInput !== '=') { 
+        activeOperator = operatorInput; // #2 //
+        console.log("Channel 4");
+    } else {   //#6
+        if (operatorInput === '=') {
+            console.log("Channel 5");
+            updateButtonColor(operatorInput);
+            return;
+        }; //accum --> numberInput --> '=' (#4) [Accu and numberinput but no activeOperator. if now i hit '+', it should leave the numbers and assign that to active operator]
         accumulatorNumber = numberInput;
         activeOperator = operatorInput;
-    };
+        console.log("Channel 5.5");
+    }; 
+    console.log(`operateLogic:: accumulatorNumber: ${accumulatorNumber}`, `numberInput: ${numberInput}`, `activeOperator: ${activeOperator} ______________`);
     [numberInput, operatorInput] = [null, null];
-};
+}; // should i do an edgeCaseLogics() function? to keep operateLogic slim?
 
 let operatorLookup = {
     '+': (accumulatorNumber, secondNumber) => accumulatorNumber + secondNumber,
@@ -114,15 +137,15 @@ let operatorLookup = {
         } else {
             numberInput = (parseFloat(numberInput) * 0.01).toString();
             updateNumberField(numberInput);
-        };  // resizeText();
+        };
     },
     '.': () => {
-        if (numberInput === null) { decimalButtonState = true; numberInput = '0.'; }
-        else if (decimalButtonState === false) { numberInput += '.' };            
-            updateNumberField(numberInput);
+        if (numberInput === null) { decimalButtonState = true; numberInput = '0.'; }   
+        else if (decimalButtonState === false) { decimalButtonState = true; numberInput += '.'; console.log("yo");}
+        updateNumberField(numberInput);
     },    
     'AC': () => {
-        [numberInput, operatorInput, accumulatorNumber, secondNumber, activeOperator] = [null, null, null, null, null];
+        [numberInput, operatorInput, accumulatorNumber, activeOperator] = [null, null, null, null];
             decimalButtonState = false;
             updateNumberField(0, '47px');
             updateButtonColor();
@@ -131,15 +154,22 @@ let operatorLookup = {
         if (numberInput) {
             numberInput = null;
             updateNumberField(0, '47px');
-        } else if (accumulatorNumber && activeOperator === null) {
-            accumulatorNumber = null;
-            updateNumberField(0, '47px');
-        } else if (accumulatorNumber && activeOperator) { operatorInput = null; activeOperator = null; }
-            clearButton.textContent = 'AC';
-            updateButtonColor(); // needs to be moved
             decimalButtonState = false;
+        } else if (accumulatorNumber && activeOperator) {
+            operatorInput = null; activeOperator = null; 
+            updateButtonColor();
+        } else if (accumulatorNumber && activeOperator === null) {
+            [accumulatorNumber, decimalButtonState] = [null, false];
+            updateNumberField(0, '47px');
+            updateButtonColor();
+            clearButton.textContent = 'AC';
+            inputField.style.borderBottomColor = 'black';
+        }
     },
-    '+/-': () => { 
+    '+/-': () => { //       98 / 9-
+        if (accumulatorNumber && activeOperator) {
+            numberInput += '-';
+        };
         if (accumulatorNumber && numberInput === null) {
             accumulatorNumber *= -1;
             return updateNumberField(accumulatorNumber);
@@ -149,9 +179,8 @@ let operatorLookup = {
         updateNumberField(numberInput);
     },
     'delete': () => {
-        if (numberInput) {
-            console.log("del");
-            numberInput = numberInput.slice(0, -1);
+        if (numberInput) { numberInput = numberInput.slice(0, -1);
+            if (numberInput.includes('.') === false) {decimalButtonState = false}
             updateNumberField(numberInput);
         };
     },
